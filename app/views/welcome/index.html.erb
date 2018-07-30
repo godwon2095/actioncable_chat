@@ -1,0 +1,12 @@
+<h1>Welcome to ChatBox</h1>
+
+<% if user_signed_in? %>
+  <%= current_user.email %> |
+  <%= link_to "Sign-out", destroy_session_path(current_user), method: :delete, data: { confirm: "Are you sure?"} %>
+  <hr>
+  <% @users.each do |u| %>
+    <%= link_to "#{u.email}", chat_room_message_path(u), class: 'btn btn-outline-primary' %>
+  <% end %>
+<% else %>
+  <%= link_to "Sign-in", new_user_session_path, class: 'btn btn-outline-primary' %>
+<% end %>
