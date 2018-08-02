@@ -14,10 +14,22 @@ class MessagesController < ApplicationController
   end
 
   def chat_room
-    @chatroom = ChatRoom.find_or_create_by(user1_id: current_user.id,
-                                           user2_id: params[:id])
-    @messages = Message.where(chat_room_id: @chatroom.id)
-    @message = current_user.messages.new
+    case1 = ChatRoom.where(user1_id: current_user.id, user2_id: params[:id])
+    case2 = ChatRoom.where(user2_id: current_user.id, user1_id: params[:id])
+
+    if case1.exists?
+      @chatroom = case1.take
+      @messages = Message.where(chat_room_id: @chatroom.id)
+      @message = current_user.messages.new
+    elsif case2.exists?
+      @chatroom = case2.take
+      @messages = Message.where(chat_room_id: @chatroom.id)
+      @message = current_user.messages.new
+    else
+      @chatroom = ChatRoom.create(user1_id: current_user.id, user2_id: params[:id])
+      @messages = Message.where(chat_room_id: @chatroom.id)
+      @message = current_user.messages.new
+    end
   end
 
   # GET /messages/new
