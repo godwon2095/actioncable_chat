@@ -7,8 +7,8 @@ App.chatting = App.cable.subscriptions.create "ChattingChannel",
 
   received: (data) ->
     # Called when there's incoming data on the websocket for this channel
-    debugger
     unless data.content.blank?
       $('#message_content').val ""
       $('#messages').append "<li>" + data.message_user.email.split('@')[0] + " : " + data.content + "</li>"
       $('#messages').scrollTop $('#messages')[0].scrollHeight
+      $('#alarm').append "<li>" + data.content + "</li>"

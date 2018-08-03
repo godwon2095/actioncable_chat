@@ -1,6 +1,14 @@
 <h1>Welcome to ChatBox</h1>
 
 <% if user_signed_in? %>
+  <% @alarms.each do |alarm| %>
+    <ul id="alarm">
+      <li>새로운 메세지 입니다: <%= alarm.content %></li>
+    </ul>
+  <% end %>
+<% end %>
+
+<% if user_signed_in? %>
   <%= current_user.email %> |
   <%= link_to "Sign-out", destroy_session_path(current_user), method: :delete, data: { confirm: "Are you sure?"} %>
   <hr>

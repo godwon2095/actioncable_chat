@@ -4,7 +4,6 @@ class MessagesController < ApplicationController
   # GET /messages
   # GET /messages.json
   def index
-    @messages = Message.all
     @message = current_user.messages.new
   end
 
@@ -14,22 +13,23 @@ class MessagesController < ApplicationController
   end
 
   def chat_room
-    case1 = ChatRoom.where(user1_id: current_user.id, user2_id: params[:id])
-    case2 = ChatRoom.where(user2_id: current_user.id, user1_id: params[:id])
+      case1 = ChatRoom.where(user1_id: current_user.id, user2_id: params[:id])
+      case2 = ChatRoom.where(user2_id: current_user.id, user1_id: params[:id])
 
-    if case1.exists?
-      @chatroom = case1.take
-      @messages = Message.where(chat_room_id: @chatroom.id)
-      @message = current_user.messages.new
-    elsif case2.exists?
-      @chatroom = case2.take
-      @messages = Message.where(chat_room_id: @chatroom.id)
-      @message = current_user.messages.new
-    else
-      @chatroom = ChatRoom.create(user1_id: current_user.id, user2_id: params[:id])
-      @messages = Message.where(chat_room_id: @chatroom.id)
-      @message = current_user.messages.new
-    end
+      if case1.exists?
+        @chatroom = case1.take
+        @messages = Message.where(chat_room_id: @chatroom.id)
+        @message = current_user.messages.new
+      elsif case2.exists?
+        @chatroom = case2.take
+        @messages = Message.where(chat_room_id: @chatroom.id)
+        @message = current_user.messages.new
+      else
+        tmp_id = params[:id]
+        current_user.id.to_i > params[:id].to_i ? @chatroom = ChatRoom.create(user1_id: params[:id], user2_id: current_user.id) : @chatroom = ChatRoom.create(user1_id: current_user.id, user2_id: tmp_id)
+        @messages = Message.where(chat_room_id: @chatroom.id)
+        @message = current_user.messages.new
+      end
   end
 
   # GET /messages/new
@@ -46,9 +46,13 @@ class MessagesController < ApplicationController
   def create
     @message = Message.new(message_params)
     @message.user = current_user
+    @alarm = Alarm.create(content: @message.content,
+                          user_id: current_user.id,
+                          chat_room_id: @message.chat_room_id)
     respond_to do |format|
       if @message.save
         ActionCable.server.broadcast 'chatting_channel', content: @message.content, message_user: @message.user
+        ActionCable.server.broadcast 'notification_channel', content: @alarm.content, alarm_user: @alarm.user
         format.js { head :ok }
       else
 

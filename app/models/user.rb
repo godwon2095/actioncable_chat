@@ -5,6 +5,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :trackable, :validatable
 
   has_many :messages
+  has_many :alarms
   # has_many :chat_rooms
   has_many :user1_relation, foreign_key: "user2_id", class_name: "ChatRoom"
 	has_many :user1s, through: :user1_relation, source: :user1
